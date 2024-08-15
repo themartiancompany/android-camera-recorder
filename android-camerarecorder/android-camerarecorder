@@ -77,7 +77,8 @@ _android_camerarecorder() {
     _resolution="${3}" \
     _rate="${4}" \
     _length="${5}" \
-    _out="${6}" \
+    _buffer="${6}" \
+    _out="${7}" \
     _camera=() \
     _camera_app_opts=() \
     _recorder_opts=() \
