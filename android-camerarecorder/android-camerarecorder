@@ -95,7 +95,7 @@ _android_camerarecorder() {
     )
   fi
   "_camera_mode_options"
-  "_${_recorder}_options"
+  "_${_recorder_app}_options"
   _run \
     "record" \
     "0" \
