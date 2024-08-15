@@ -17,8 +17,8 @@ source \
 # are available
 _requirements() {
   _check_cmd \
-    'android-screenrecorder' \
-    'android-screenrecorder'
+    'android-recorder' \
+    'android-recorder'
   _check_cmd \
     'android-audiorecorder' \
     'android-audiorecorder'
@@ -72,11 +72,11 @@ _android_screenrecord(){
 # $2: recording method (root)
 # $2: delay seconds
 # $3: output video file
-_android_recorder() {
+_android_camerarecorder() {
   local \
-    _method="${1}" \
+    _app="${1}" \
     _rate="${2}" \
-    _length="${3}" \
+    _length="${4}" \
     _out=(
       "${4}"
     ) \
@@ -189,7 +189,7 @@ _usage() {
       _usage_text << \
         ENDUSAGETEXT || true
 
-Record
+Record using the camera
 
 Usage:
   $(_get "app" "name")
@@ -224,7 +224,7 @@ while \
     arg; do
   case \
     "${arg}" in
-    m) override_recording_method="${OPTARG}" ;;
+    m) override_app_method="${OPTARG}" ;;
     b) override_bit_rate="${OPTARG}" ;;
     l) override_recording_length="${OPTARG}" ;;
     c) override_color="y" ;;
@@ -260,6 +260,5 @@ app_opts=(
   "${bit_rate}"
   "${recording_length}"
   "${out_file}"
-)
-_android_recorder \
+_android_camerarecorder \
   "${app_opts[@]}"
