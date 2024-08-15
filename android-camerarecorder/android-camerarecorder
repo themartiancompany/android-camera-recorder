@@ -20,17 +20,16 @@ _requirements() {
     'android-recorder' \
     'android-recorder'
   _check_cmd \
-    'android-audiorecorder' \
-    'android-audiorecorder'
-  _check_cmd \
-    'mkmedia' \
-    'media-tools'
+    'camera-mode' \
+    'record-tools'
 }
 
 # shellcheck disable=SC2034
 _global_variables() {
   recording_date=""
-  recording_method=""
+  recording_resolution=""
+  camera_app=""
+  recorder_app=""
   recording_length=""
   out_file=""
   bit_rate=""
@@ -45,19 +44,21 @@ _method_auto_detect() {
   fi
 }
 
-_android_audiorecord(){
-  _audiorecord+=(
-    android-audiorecorder
+_camera-app_setup(){
+  _camera+=(
+    camera-app
   )
-  _audiorecord_opts+=(
+  _camera_app_opts+=(
+    -p
+      "${_camera_app}"
     -l
-      "${_length}" 
+      "${_length}"
   )
 }
 
-_android_screenrecord(){
-  _screenrecord+=(
-    android-screenrecorder
+_android-recorder_options(){
+  _recorder+=(
+    android-recorder
   )
   _screenrecord_opts+=(
     -l
@@ -74,50 +75,41 @@ _android_screenrecord(){
 # $3: output video file
 _android_camerarecorder() {
   local \
-    _app="${1}" \
-    _rate="${2}" \
-    _length="${4}" \
-    _out=(
-      "${4}"
-    ) \
-    _audiorecord=() \
-    _audiorecord_opts=() \
-    _screenrecord_opts=() \
-    _screenrecord=() \
-    _mkmedia_opts=() \
+    _camera_app="${1}" \
+    _recorder_app="${2}" \
+    _resolution="${3}" \
+    _rate="${4}" \
+    _length="${5}" \
+    _out="${6}"
+    _camera=() \
+    _camera_app_opts=() \
+    _recorder_opts=() \
+    _recorder=() \
     _pids=() \
-    _tmp_dir \
-    _vid \
-    _aud
+    _tmp_dir
   if [[ "${quiet}" != "y" ]]; then
-    _audiorecord_opts+=(
+    _recorder_opts+=(
       -v
     )
-    _mkmedia_opts+=(
-      -v
-    )
-    _screenrecord_opts+=(
+    _camera-app_opts+=(
       -v
     )
   fi
   _tmp_dir="$( \
     mktemp \
       -d)"
-  _vid="${_tmp_dir}/vid.mp4"
-  _aud="${_tmp_dir}/aud.aac"
-  "_${_method}_audiorecord"
-  "_${_method}_screenrecord"
+  "_${_camera_app}_options"
+  "_${_method}_options"
   _run \
     "record" \
     "0" \
     "async" \
-    "${_screenrecord[@]}" \
-      "${_screenrecord_opts[@]}" \
-      "${_vid}" || \
+    "${_recorder[@]}" \
+      "${_recorder_opts[@]}" \
+      "${_out}" || \
     true
-  "${_audiorecord[*]}" \
-      "${_audiorecord_opts[@]}" \
-      "${_aud}" || \
+  "${_camera[@]}" \
+      "${_camera_app_opts[@]}" || \
     true
   _pids=(
     "$(_get_pid \
@@ -127,12 +119,37 @@ _android_camerarecorder() {
     "${_pids[@]}" || \
     true
   _msg_info \
-    "recording ended, mixing audio and video"
-  mkmedia \
-    "${_mkmedia_opts[@]}" \
-    "${_out[*]}" \
-    "${_aud}" \
-    "${_vid}"
+    "recording ended, quitting."
+}
+
+_resolution_autodetect() {
+  local \
+    _resolution
+  if [[ $(command -v 'sudo') != "" ]]; then
+    _resolution="$( \
+      sudo \
+        wm \
+          size | \
+        tail \
+          -n \
+          1 | \
+	  awk \
+	    '{print $3}')"
+  else
+    echo '720x1280'
+  fi
+}
+
+_camera_app_auto_detect() {
+  local \
+    _os
+  _os="$( \
+    uname \
+      -o)"
+  if [[ "${_os}" == 'Android' ]]; then
+    echo \
+      'net.sourceforge.opencamera'
+  fi
 }
 
 # Set defaults and, if present, overrides
@@ -143,9 +160,17 @@ _set_overrides() {
     "date" \
     "$(_get_date_human)"
   _set_override \
+    "camera" \
+    "app" \
+    "$(_camera_app_auto_detect)"
+  _set_override \
+    "recorder" \
+    "app" \
+    "android-recorder"
+  _set_override \
     "recording" \
-    "method" \
-    "$(_method_auto_detect)"
+    "resolution" \
+    "$(_resolution_auto_detect)" 
   _set_override \
     "bit" \
     "rate" \
@@ -154,7 +179,7 @@ _set_overrides() {
   _set_override \
     "recording" \
     "length" \
-    "120" # "$(( 24 * 60 * 60 ))" # 24 hours
+    "360" # "$(( 24 * 60 * 60 ))" # 24 hours
   if [[ -v override_color ]]; then
     color="${override_color}"
   elif [[ -z "${color}" ]]; then
@@ -171,7 +196,8 @@ _set_overrides() {
 _show_config() {
   _msg_info "${app_name} configuration"
   _msg_info "           Recording date:   $(_get "recording" "date")"
-  _msg_info "         Recording method:   $(_get "recording" "method")"
+  _msg_info "               Camera app:   $(_get "camera" "app")"
+  _msg_info "             Recorder app:   $(_get "recorder" "app")"
   _msg_info "                 Bit rate:   $(_get "bit" "rate")"
   _msg_info "         Recording length:   $(_get "recording" "length")"
   _msg_info "              Output file:   $(_get "out" "file")"
@@ -189,18 +215,20 @@ _usage() {
       _usage_text << \
         ENDUSAGETEXT || true
 
-Record using the camera
+Android camera recorder.
 
 Usage:
   $(_get "app" "name")
     [options]
     (<out_file>)
   options:
-     -m                   Recording method
-                          Default: $(_get "recording" "method")
-     -b                   Video bitrate.
+     -p <camera_app>      Android camera app to launch.
+                          Default: $(_get "camera" "app")
+     -r <recorder_app>    Recorder application to use.
+                          Default: $(_get "recorder" "app")
+     -b <bitrate>         Video bitrate.
                           Default: $(_get "bit" "rate").
-     -l                   Length of the recording.
+     -l <length>          Length of the recording.
                           Default: $(_get "recording" "length").
      -s                   Output to stdout.
      -h                   This message.
@@ -220,11 +248,12 @@ _requirements
 # shellcheck disable=SC2034
 while \
   getopts \
-    'f:m:b:l:cvh?' \
+    'p:r:b:l:cvh?' \
     arg; do
   case \
     "${arg}" in
-    m) override_app_method="${OPTARG}" ;;
+    p) override_camera_app="${OPTARG}" ;;
+    r) override_recorder_app="${OPTARG}" ;;
     b) override_bit_rate="${OPTARG}" ;;
     l) override_recording_length="${OPTARG}" ;;
     c) override_color="y" ;;
@@ -256,7 +285,8 @@ _config_user_init \
   "$(_get "app" "name")"
 _show_config
 app_opts=(
-  "${recording_method}"
+  "${camera_app}"
+  "${recorder_app}"
   "${bit_rate}"
   "${recording_length}"
   "${out_file}"
