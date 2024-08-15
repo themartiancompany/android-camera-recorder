@@ -230,7 +230,6 @@ Usage:
                           Default: $(_get "bit" "rate").
      -l <length>          Length of the recording.
                           Default: $(_get "recording" "length").
-     -s                   Output to stdout.
      -h                   This message.
      -v                   Enable verbose output
 ENDUSAGETEXT
