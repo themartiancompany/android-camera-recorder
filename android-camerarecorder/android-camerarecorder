@@ -44,7 +44,7 @@ _method_auto_detect() {
   fi
 }
 
-_camera-mode_options(){
+_camera_mode_options(){
   _camera+=(
     camera-mode
   )
@@ -94,7 +94,7 @@ _android_camerarecorder() {
       -v
     )
   fi
-  "_camera-mode_options"
+  "_camera_mode_options"
   "_${_recorder}_options"
   _run \
     "record" \
