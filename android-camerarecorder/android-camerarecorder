@@ -91,7 +91,7 @@ _android_camerarecorder() {
     _recorder_opts+=(
       -v
     )
-    _camera-app_opts+=(
+    _camera_app_opts+=(
       -v
     )
   fi
