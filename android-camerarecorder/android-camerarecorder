@@ -133,8 +133,10 @@ _resolution_auto_detect() {
 	  awk \
 	    '{print $3}')"
   else
-    echo '720x1280'
+    _resolution='720x1280'
   fi
+  echo \
+    "${_resolution}"
 }
 
 _camera_app_auto_detect() {
