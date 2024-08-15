@@ -122,7 +122,7 @@ _android_camerarecorder() {
     "recording ended, quitting."
 }
 
-_resolution_autodetect() {
+_resolution_auto_detect() {
   local \
     _resolution
   if [[ $(command -v 'sudo') != "" ]]; then
