@@ -44,7 +44,7 @@ _method_auto_detect() {
   fi
 }
 
-_camera-mode_setup(){
+_camera-mode_options(){
   _camera+=(
     camera-mode
   )
