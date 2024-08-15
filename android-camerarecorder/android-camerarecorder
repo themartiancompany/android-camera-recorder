@@ -154,10 +154,10 @@ _buffer_auto_detect() {
   if (( "${_sdk}" < 28 )); then
     echo \
       "180"
-    else
+  else
     echo \
       "300"
-    fi
+  fi
 }
 
 # Set defaults and, if present, overrides
