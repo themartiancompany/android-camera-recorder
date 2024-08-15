@@ -61,7 +61,7 @@ _android-recorder_options(){
   _recorder+=(
     android-recorder
   )
-  _screenrecord_opts+=(
+  _recorder_opts+=(
     -l
       "${_length}" 
     -b
