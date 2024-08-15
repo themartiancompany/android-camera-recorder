@@ -80,13 +80,12 @@ _android_camerarecorder() {
     _resolution="${3}" \
     _rate="${4}" \
     _length="${5}" \
-    _out="${6}"
+    _out="${6}" \
     _camera=() \
     _camera_app_opts=() \
     _recorder_opts=() \
     _recorder=() \
-    _pids=() \
-    _tmp_dir
+    _pids=()
   if [[ "${quiet}" != "y" ]]; then
     _recorder_opts+=(
       -v
@@ -95,9 +94,6 @@ _android_camerarecorder() {
       -v
     )
   fi
-  _tmp_dir="$( \
-    mktemp \
-      -d)"
   "_${_camera_app}_options"
   "_${_method}_options"
   _run \
@@ -199,6 +195,7 @@ _show_config() {
   _msg_info "               Camera app:   $(_get "camera" "app")"
   _msg_info "             Recorder app:   $(_get "recorder" "app")"
   _msg_info "                 Bit rate:   $(_get "bit" "rate")"
+  _msg_info "     Recording resolution:   $(_get "recording" "resolution")"
   _msg_info "         Recording length:   $(_get "recording" "length")"
   _msg_info "              Output file:   $(_get "out" "file")"
 }
@@ -226,6 +223,8 @@ Usage:
                           Default: $(_get "camera" "app")
      -r <recorder_app>    Recorder application to use.
                           Default: $(_get "recorder" "app")
+     -s <widthxheight>    Recording resolution.
+                          Default: $(_get "recording" "resolution")
      -b <bitrate>         Video bitrate.
                           Default: $(_get "bit" "rate").
      -l <length>          Length of the recording.
