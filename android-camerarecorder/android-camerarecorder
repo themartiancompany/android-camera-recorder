@@ -17,8 +17,8 @@ source \
 # are available
 _requirements() {
   _check_cmd \
-    'android-recorder' \
-    'android-recorder'
+    'record' \
+    'record-tools'
   _check_cmd \
     'camera-mode' \
     'record-tools'
@@ -31,17 +31,11 @@ _global_variables() {
   camera_app=""
   recorder_app=""
   recording_length=""
+  recording_buffer=""
   out_file=""
   bit_rate=""
   color=""
   quiet=""
-}
-
-_method_auto_detect() {
-  if [[ "$(uname -o)" == "Android" ]]; then
-    echo \
-      'android'
-  fi
 }
 
 _camera_mode_options(){
@@ -57,13 +51,15 @@ _camera_mode_options(){
   )
 }
 
-_android-recorder_options(){
+_record_options(){
   _recorder+=(
-    android-recorder
+    record
   )
   _recorder_opts+=(
     -l
       "${_length}" 
+    -k
+      "${_buffer}"
     -b
       "${_rate}"
   )
@@ -151,6 +147,18 @@ _camera_app_auto_detect() {
   fi
 }
 
+_buffer_auto_detect() {
+  _sdk="$( \
+    sdk-version)"
+  if (( "${_sdk}" < 28 )); then
+    echo \
+      "180"
+    else
+    echo \
+      "300"
+    fi
+}
+
 # Set defaults and, if present, overrides
 # from program command line option parameters
 _set_overrides() {
@@ -165,7 +173,7 @@ _set_overrides() {
   _set_override \
     "recorder" \
     "app" \
-    "android-recorder"
+    "record"
   _set_override \
     "recording" \
     "resolution" \
@@ -173,12 +181,16 @@ _set_overrides() {
   _set_override \
     "bit" \
     "rate" \
-    "420000" # 420 Kb?
+    "160000" # 420 Kb?
     # "16000000" # 16 Mb?
   _set_override \
     "recording" \
     "length" \
-    "360" # "$(( 24 * 60 * 60 ))" # 24 hours
+    "$(( 10 * 60))" # "$(( 24 * 60 * 60 ))" # 24 hours
+  _set_override \
+    "recording" \
+    "buffer" \
+    "$(_buffer_auto_detect)"
   if [[ -v override_color ]]; then
     color="${override_color}"
   elif [[ -z "${color}" ]]; then
@@ -200,6 +212,7 @@ _show_config() {
   _msg_info "                 Bit rate:   $(_get "bit" "rate")"
   _msg_info "     Recording resolution:   $(_get "recording" "resolution")"
   _msg_info "         Recording length:   $(_get "recording" "length")"
+  _msg_info "         Recording buffer:   $(_get "recording" "buffer")"
   _msg_info "              Output file:   $(_get "out" "file")"
 }
 
@@ -232,6 +245,9 @@ Usage:
                           Default: $(_get "bit" "rate").
      -l <length>          Length of the recording.
                           Default: $(_get "recording" "length").
+     -k <buffer>          Buffer for the recording.
+                          Default: $(_get "recording" "buffer").
+
      -h                   This message.
      -v                   Enable verbose output
 ENDUSAGETEXT
@@ -249,7 +265,7 @@ _requirements
 # shellcheck disable=SC2034
 while \
   getopts \
-    'p:r:b:l:cvh?' \
+    'p:r:b:l:k:cvh?' \
     arg; do
   case \
     "${arg}" in
@@ -257,6 +273,7 @@ while \
     r) override_recorder_app="${OPTARG}" ;;
     b) override_bit_rate="${OPTARG}" ;;
     l) override_recording_length="${OPTARG}" ;;
+    k) override_recording_buffer="${OPTARG}" ;;
     c) override_color="y" ;;
     v) override_quiet="n" ;;
     h|?) _set_overrides && \
@@ -291,6 +308,7 @@ app_opts=(
   "${recording_resolution}"
   "${bit_rate}"
   "${recording_length}"
+  "${recording_buffer}"
   "${out_file}"
 )
 _android_camerarecorder \
