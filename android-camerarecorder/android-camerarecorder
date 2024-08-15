@@ -286,8 +286,10 @@ _show_config
 app_opts=(
   "${camera_app}"
   "${recorder_app}"
+  "${recording_resolution}"
   "${bit_rate}"
   "${recording_length}"
   "${out_file}"
+)
 _android_camerarecorder \
   "${app_opts[@]}"
