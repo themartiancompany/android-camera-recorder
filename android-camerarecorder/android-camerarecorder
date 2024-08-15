@@ -53,6 +53,7 @@ _camera_mode_options(){
       "${_camera_app}"
     -t
       "${_length}"
+    service
   )
 }
 
