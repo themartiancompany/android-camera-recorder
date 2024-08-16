@@ -1,5 +1,5 @@
 ===============
-android-camerarecorder Authors
+android-camera-recorder Authors
 ===============
 
 * Pellegrino Prevete <pellegrinoprevete@gmail.com>

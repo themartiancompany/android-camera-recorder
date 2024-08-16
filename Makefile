@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 PREFIX ?= /usr/local
-DOC_DIR=$(DESTDIR)$(PREFIX)/share/doc/android-camerarecorder
+DOC_DIR=$(DESTDIR)$(PREFIX)/share/doc/android-camera-recorder
 BIN_DIR=$(DESTDIR)$(PREFIX)/bin
-DATA_DIR=$(DESTDIR)$(PREFIX)/share/android-camerarecorder
+DATA_DIR=$(DESTDIR)$(PREFIX)/share/android-camera-recorder
 
 DOC_FILES=$(wildcard *.rst)
-SCRIPT_FILES=$(wildcard android-camerarecorder/*)
+SCRIPT_FILES=$(wildcard android-camera-recorder/*)
 
 all:
 
@@ -24,7 +24,7 @@ install-doc:
 install-scripts:
 
 	install -vdm 755 "$(BIN_DIR)"
-	install -vDm 755 android-camerarecorder/android-camerarecorder "$(BIN_DIR)"
+	install -vDm 755 android-camera-recorder/android-camera-recorder "$(BIN_DIR)"
 
 install-configs:
 
