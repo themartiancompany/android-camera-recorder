@@ -20,8 +20,8 @@ _requirements() {
     'record' \
     'record-tools'
   _check_cmd \
-    'camera-mode' \
-    'record-tools'
+    'android-camera' \
+    'android-camera'
 }
 
 # shellcheck disable=SC2034
@@ -38,22 +38,23 @@ _global_variables() {
   quiet=""
 }
 
-_camera_mode_options(){
+_android-camera_options(){
   _camera+=(
-    camera-mode
+    "${_camera_app}"
   )
-  _camera_app_opts+=(
+  _camera_opts+=(
     -a
       "${_camera_app}"
-    -t
+    -l
       "${_length}"
-    service
+    -d
+    -t
   )
 }
 
 _record_options(){
   _recorder+=(
-    record
+    "${_recorder_app}"
   )
   _recorder_opts+=(
     -l
@@ -65,11 +66,14 @@ _record_options(){
   )
 }
 
-# Record screen
-# $1: input video file
-# $2: recording method (root)
-# $2: delay seconds
-# $3: output video file
+# Record from camera
+# $1: camera app
+# $2: recorder app
+# $3: recording resolution
+# $4: video bitrate
+# $5: recording length
+# $6: buffer length
+# $7: out file
 _android_camerarecorder() {
   local \
     _camera_app="${1}" \
@@ -80,7 +84,7 @@ _android_camerarecorder() {
     _buffer="${6}" \
     _out="${7}" \
     _camera=() \
-    _camera_app_opts=() \
+    _camera_opts=() \
     _recorder_opts=() \
     _recorder=() \
     _pids=()
@@ -88,11 +92,11 @@ _android_camerarecorder() {
     _recorder_opts+=(
       -v
     )
-    _camera_app_opts+=(
+    _camera_opts+=(
       -v
     )
   fi
-  "_camera_mode_options"
+  "_${_camera_app}_options"
   "_${_recorder_app}_options"
   _run \
     "record" \
@@ -103,7 +107,7 @@ _android_camerarecorder() {
       "${_out}" || \
     true
   "${_camera[@]}" \
-      "${_camera_app_opts[@]}" || \
+      "${_camera_opts[@]}" || \
     true
   _pids=(
     "$(_get_pid \
@@ -144,7 +148,7 @@ _camera_app_auto_detect() {
       -o)"
   if [[ "${_os}" == 'Android' ]]; then
     echo \
-      'net.sourceforge.opencamera'
+      'android-camera'
   fi
 }
 
