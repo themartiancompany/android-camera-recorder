@@ -43,7 +43,7 @@ _android-camera_options(){
     "${_camera_app}"
   )
   _camera_opts+=(
-    -l
+    -L
       "${_length}"
     -d
     -t
