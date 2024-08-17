@@ -55,7 +55,7 @@ _record_options(){
     "${_recorder_app}"
   )
   _recorder_opts+=(
-    -l
+    -L
       "${_length}" 
     -k
       "${_buffer}"
@@ -268,14 +268,14 @@ _requirements
 # shellcheck disable=SC2034
 while \
   getopts \
-    'p:r:b:l:k:cvh?' \
+    'p:r:b:L:k:cvh?' \
     arg; do
   case \
     "${arg}" in
     p) override_camera_app="${OPTARG}" ;;
     r) override_recorder_app="${OPTARG}" ;;
     b) override_bit_rate="${OPTARG}" ;;
-    l) override_recording_length="${OPTARG}" ;;
+    L) override_recording_length="${OPTARG}" ;;
     k) override_recording_buffer="${OPTARG}" ;;
     c) override_color="y" ;;
     v) override_quiet="n" ;;
